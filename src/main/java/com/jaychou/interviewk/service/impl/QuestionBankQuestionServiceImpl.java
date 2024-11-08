@@ -4,14 +4,20 @@ import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.jaychou.interviewk.common.ErrorCode;
 import com.jaychou.interviewk.constant.CommonConstant;
+import com.jaychou.interviewk.exception.ThrowUtils;
 import com.jaychou.interviewk.mapper.QuestionBankQuestionMapper;
 import com.jaychou.interviewk.model.dto.questionbankquestion.QuestionBankQuestionQueryRequest;
+import com.jaychou.interviewk.model.entity.Question;
+import com.jaychou.interviewk.model.entity.QuestionBank;
 import com.jaychou.interviewk.model.entity.QuestionBankQuestion;
 import com.jaychou.interviewk.model.entity.User;
 import com.jaychou.interviewk.model.vo.QuestionBankQuestionVO;
 import com.jaychou.interviewk.model.vo.UserVO;
 import com.jaychou.interviewk.service.QuestionBankQuestionService;
+import com.jaychou.interviewk.service.QuestionBankService;
+import com.jaychou.interviewk.service.QuestionService;
 import com.jaychou.interviewk.service.UserService;
 import com.jaychou.interviewk.utils.SqlUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -20,10 +26,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -41,6 +44,10 @@ public class QuestionBankQuestionServiceImpl extends ServiceImpl<QuestionBankQue
 
     @Resource
     private UserService userService;
+    @Resource
+    private QuestionService questionService;
+    @Resource
+    private QuestionBankService questionBankService;
 
     /**
      * 校验数据
@@ -50,8 +57,20 @@ public class QuestionBankQuestionServiceImpl extends ServiceImpl<QuestionBankQue
      */
     @Override
     public void validQuestionBankQuestion(QuestionBankQuestion QuestionBankQuestion, boolean add) {
-/*        ThrowUtils.throwIf(QuestionBankQuestion == null, ErrorCode.PARAMS_ERROR);
-        // todo 从对象中取值
+        ThrowUtils.throwIf(QuestionBankQuestion == null, ErrorCode.PARAMS_ERROR);
+        //题目和题库必须存在
+        Long questionBankId = QuestionBankQuestion.getQuestionBankId();
+        if (questionBankId != null) {
+            QuestionBank questionBank = questionBankService.getById(questionBankId);
+            ThrowUtils.throwIf(questionBank == null, ErrorCode.NOT_FOUND_ERROR, "题目不存在");
+        }
+        Long questionId = QuestionBankQuestion.getQuestionId();
+        if(questionId != null){
+            Question question = questionService.getById(questionId);
+            ThrowUtils.throwIf(question == null,ErrorCode.NOT_FOUND_ERROR,"题库不存在");
+        }
+
+      /*  // todo 从对象中取值
         String title = QuestionBankQuestion.getTitle();
         // 创建数据时，参数不能为空
         if (add) {

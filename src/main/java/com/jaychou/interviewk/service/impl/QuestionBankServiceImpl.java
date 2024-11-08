@@ -93,6 +93,7 @@ public class QuestionBankServiceImpl extends ServiceImpl<QuestionBankMapper, Que
         String sortField = QuestionBankQueryRequest.getSortField();
         String sortOrder = QuestionBankQueryRequest.getSortOrder();
 
+
         // todo 补充需要的查询条件
         // 从多字段中搜索
         if (StringUtils.isNotBlank(searchText)) {

@@ -3,7 +3,7 @@
 # @from <a href="https://红模仿">KongのBlog</a>
 spring:
   application:
-    name: KongInterview-backend
+    name: InterviewK-backend
   # 默认 dev 环境
   profiles:
     active: dev
@@ -23,7 +23,7 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/konginterview
     username: root
-    password: kong0305
+    password: 123456
   # Redis 配置
   # todo 需替换配置，然后取消注释
 #  redis:
@@ -100,4 +100,4 @@ knife4j:
       default:
         api-rule: package
         api-rule-resources:
-          - com.jaychou.konginterview.controller
+          - com.jaychou.interviewk.controller

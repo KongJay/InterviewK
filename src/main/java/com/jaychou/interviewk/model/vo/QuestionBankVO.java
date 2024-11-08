@@ -2,6 +2,8 @@ package com.jaychou.interviewk.model.vo;
 
 
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.jaychou.interviewk.model.entity.Question;
 import com.jaychou.interviewk.model.entity.QuestionBank;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
@@ -60,6 +62,10 @@ public class QuestionBankVO implements Serializable {
      * 图片
      */
     private String picture;
+    /**
+     * 题库里的题目列表（分页）
+     */
+    Page<Question> questionPage;
 
     /**
      * 封装类转对象

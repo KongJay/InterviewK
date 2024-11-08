@@ -12,9 +12,9 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.jaychou</groupId>
-    <artifactId>KongInterview-backend</artifactId>
+    <artifactId>InterviewK-backend</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>KongInterview-backend</name>
+    <name>InterviewK-backend</name>
     <properties>
         <java.version>11</java.version>
     </properties>

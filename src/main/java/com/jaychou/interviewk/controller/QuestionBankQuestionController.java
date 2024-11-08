@@ -1,5 +1,7 @@
 package com.jaychou.interviewk.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.jaychou.interviewk.annotation.AuthCheck;
 import com.jaychou.interviewk.common.BaseResponse;
@@ -11,6 +13,7 @@ import com.jaychou.interviewk.exception.BusinessException;
 import com.jaychou.interviewk.exception.ThrowUtils;
 import com.jaychou.interviewk.model.dto.questionbankquestion.QuestionBankQuestionAddRequest;
 import com.jaychou.interviewk.model.dto.questionbankquestion.QuestionBankQuestionQueryRequest;
+import com.jaychou.interviewk.model.dto.questionbankquestion.QuestionBankQuestionRemoveRequest;
 import com.jaychou.interviewk.model.dto.questionbankquestion.QuestionBankQuestionUpdateRequest;
 import com.jaychou.interviewk.model.entity.QuestionBankQuestion;
 import com.jaychou.interviewk.model.entity.User;
@@ -23,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.sql.Wrapper;
 
 /**
  * ClassName: QuestionBankQuestionController
@@ -205,7 +209,22 @@ public class QuestionBankQuestionController {
         return ResultUtils.success(QuestionBankQuestionService.getQuestionBankQuestionVOPage(QuestionBankQuestionPage, request));
     }
 
-
-
+    /**
+     * 移除题库题目关联
+     *
+     * @param questionBankQuestionRemoveRequest
+     * @return
+     */
+    @PostMapping("/remove")
+    public BaseResponse<Boolean> removeQuestionBankQuestion(@RequestBody QuestionBankQuestionRemoveRequest questionBankQuestionRemoveRequest) {
+        ThrowUtils.throwIf(questionBankQuestionRemoveRequest == null, ErrorCode.PARAMS_ERROR);
+        Long questionBankId = questionBankQuestionRemoveRequest.getQuestionBankId();
+        Long questionId = questionBankQuestionRemoveRequest.getQuestionId();
+        LambdaQueryWrapper<QuestionBankQuestion> lambdaQueryWrapper = Wrappers.lambdaQuery(QuestionBankQuestion.class)
+                .eq(QuestionBankQuestion::getQuestionBankId, questionBankId)
+                .eq(QuestionBankQuestion::getQuestionId, questionId);
+        boolean result = QuestionBankQuestionService.remove(lambdaQueryWrapper);
+        return ResultUtils.success(result);
+    }
     // endregion
 }
