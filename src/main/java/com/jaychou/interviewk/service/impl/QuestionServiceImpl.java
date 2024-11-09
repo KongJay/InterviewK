@@ -5,14 +5,9 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.baomidou.mybatisplus.extension.service.IService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.jaychou.interviewk.annotation.AuthCheck;
-import com.jaychou.interviewk.common.BaseResponse;
 import com.jaychou.interviewk.common.ErrorCode;
-import com.jaychou.interviewk.common.ResultUtils;
 import com.jaychou.interviewk.constant.CommonConstant;
-import com.jaychou.interviewk.constant.UserConstant;
 import com.jaychou.interviewk.exception.ThrowUtils;
 import com.jaychou.interviewk.mapper.QuestionMapper;
 import com.jaychou.interviewk.model.dto.question.QuestionQueryRequest;
@@ -28,9 +23,9 @@ import com.jaychou.interviewk.utils.SqlUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -38,7 +33,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -51,12 +45,13 @@ import java.util.stream.Collectors;
  * @Version: v1.0
  */
 @Service
-@Slf4j
 public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> implements QuestionService {
 
-    @Resource
+    @Autowired
     private UserService userService;
-    @Resource
+
+    @Lazy
+    @Autowired
     private QuestionBankQuestionService questionBankQuestionService;
 
     /**

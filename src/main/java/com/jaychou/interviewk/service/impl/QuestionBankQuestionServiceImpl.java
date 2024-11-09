@@ -22,6 +22,7 @@ import com.jaychou.interviewk.service.UserService;
 import com.jaychou.interviewk.utils.SqlUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -42,11 +43,11 @@ import java.util.stream.Collectors;
 @Slf4j
 public class QuestionBankQuestionServiceImpl extends ServiceImpl<QuestionBankQuestionMapper, QuestionBankQuestion> implements QuestionBankQuestionService {
 
-    @Resource
+    @Autowired
     private UserService userService;
-    @Resource
+    @Autowired
     private QuestionService questionService;
-    @Resource
+    @Autowired
     private QuestionBankService questionBankService;
 
     /**
