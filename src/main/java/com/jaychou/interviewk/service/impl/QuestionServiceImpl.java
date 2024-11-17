@@ -20,14 +20,12 @@ import com.jaychou.interviewk.service.QuestionBankQuestionService;
 import com.jaychou.interviewk.service.QuestionService;
 import com.jaychou.interviewk.service.UserService;
 import com.jaychou.interviewk.utils.SqlUtils;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.List;
