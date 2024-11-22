@@ -15,9 +15,6 @@ import com.jaychou.interviewk.model.vo.LoginUserVO;
 import com.jaychou.interviewk.model.vo.UserVO;
 import com.jaychou.interviewk.service.UserService;
 import lombok.extern.slf4j.Slf4j;
-import me.chanjar.weixin.common.bean.WxOAuth2UserInfo;
-import me.chanjar.weixin.common.bean.oauth2.WxOAuth2AccessToken;
-import me.chanjar.weixin.mp.api.WxMpService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.util.DigestUtils;
@@ -25,7 +22,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 import static com.jaychou.interviewk.service.impl.UserServiceImpl.SALT;
@@ -46,7 +42,6 @@ public class UserController {
 
     @Resource
     private UserService userService;
-
 
 
     // region 登录相关
@@ -306,5 +301,32 @@ public class UserController {
         boolean result = userService.updateById(user);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
         return ResultUtils.success(true);
+    }
+
+    /**
+     * 添加用户签到记录
+     *
+     * @param httpRequest
+     * @return 当前是否签到成功
+     */
+    @PostMapping("/add/sign_in")
+    public BaseResponse<Boolean> addUserSignIns(HttpServletRequest httpRequest) {
+        User loginUser = userService.getLoginUser(httpRequest);
+        boolean result = userService.addUserSignIns(loginUser.getId());
+        return ResultUtils.success(result);
+    }
+
+    /**
+     * 获取签到记录
+     *
+     * @param year
+     * @param request
+     * @return
+     */
+    @GetMapping("/get/sign_in")
+    public BaseResponse<List<Integer>> getUserSigninRecord(Integer year, HttpServletRequest request) {
+        User loginUser = userService.getLoginUser(request);
+        List result = userService.getUserSignInRecord(loginUser.getId(), year);
+        return ResultUtils.success(result);
     }
 }

@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jaychou.interviewk.common.ErrorCode;
 import com.jaychou.interviewk.constant.CommonConstant;
+import com.jaychou.interviewk.constant.RedisConstant;
 import com.jaychou.interviewk.exception.BusinessException;
 import com.jaychou.interviewk.mapper.UserMapper;
 import com.jaychou.interviewk.model.dto.user.UserQueryRequest;
@@ -17,13 +18,18 @@ import com.jaychou.interviewk.utils.SqlUtils;
 import lombok.extern.slf4j.Slf4j;
 import me.chanjar.weixin.common.bean.WxOAuth2UserInfo;
 import org.apache.commons.lang3.StringUtils;
+import org.redisson.api.RBitSet;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-
+import java.time.LocalDate;
+import java.time.Year;
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -46,6 +52,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      * 盐值，混淆密码
      */
     public static final String SALT = "JayChou";
+    @Resource
+    private RedissonClient redissonClient;
 
     @Override
     public long userRegister(String userAccount, String userPassword, String checkPassword) {
@@ -273,5 +281,44 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         queryWrapper.orderBy(SqlUtils.validSortField(sortField), sortOrder.equals(CommonConstant.SORT_ORDER_ASC),
                 sortField);
         return queryWrapper;
+    }
+
+    /**
+     * 添加用户签到记录
+     *
+     * @param userId
+     * @return 当前用户是否已签到成功
+     */
+    @Override
+    public boolean addUserSignIns(long userId) {
+        LocalDate date = LocalDate.now();
+        String key = RedisConstant.getUserSignInRedisKey(date.getYear(), userId);
+        RBitSet bitSet = redissonClient.getBitSet(key);
+        int dayOfYear = date.getDayOfYear();
+        //如果未签到
+        if (!bitSet.get(dayOfYear)) {
+            bitSet.set(dayOfYear, true);
+        }
+        //如果已签到
+        return true;
+    }
+
+    @Override
+    public List<Integer> getUserSignInRecord(long userid, Integer year) {
+        if (year == null) {
+            LocalDate now = LocalDate.now();
+            year = now.getYear();
+        }
+        String key = RedisConstant.getUserSignInRedisKey(year, userid);
+        RBitSet bitSet = redissonClient.getBitSet(key);
+        //先将bitSet缓存到内存中
+        BitSet bitSetCache = bitSet.asBitSet();
+        List<Integer> list = new ArrayList<>();
+        int index = bitSetCache.nextSetBit(0);
+        while(index >=0){
+            list.add(index);
+            index = bitSetCache.nextSetBit(index+1);
+        }
+        return list;
     }
 }

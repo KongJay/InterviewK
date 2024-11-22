@@ -225,6 +225,8 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
                         .map(questionBankQuestion -> questionBankQuestion.getQuestionId())
                         .collect(Collectors.toSet());
                 queryWrapper.in("id", questionIds);
+            }else {
+                return new Page<>(current,size,0);
             }
 
            /* List<QuestionBankQuestion> questionList = questionBankQuestionService.list().stream()
@@ -234,6 +236,10 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
         }
         // 查询数据库
         Page<Question> questionPage = this.page(new Page<>(current, size), queryWrapper);
+        // 手动设置 total 数量
+        long total = this.count(queryWrapper);
+        questionPage.setTotal(total);
+
         return questionPage;
     }
 }
