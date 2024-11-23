@@ -1,6 +1,7 @@
 package com.jaychou.interviewk.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
+import co.elastic.clients.elasticsearch.async_search.ElasticsearchAsyncSearchClient;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jaychou.interviewk.common.ErrorCode;
@@ -21,6 +22,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.redisson.api.RBitSet;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
@@ -51,6 +53,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     /**
      * 盐值，混淆密码
      */
+    @Resource
+    private ElasticsearchRestTemplate elasticsearchRestTemplate;
     public static final String SALT = "JayChou";
     @Resource
     private RedissonClient redissonClient;
