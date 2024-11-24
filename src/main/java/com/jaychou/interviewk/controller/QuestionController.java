@@ -14,10 +14,7 @@ import com.jaychou.interviewk.common.ResultUtils;
 import com.jaychou.interviewk.constant.UserConstant;
 import com.jaychou.interviewk.exception.BusinessException;
 import com.jaychou.interviewk.exception.ThrowUtils;
-import com.jaychou.interviewk.model.dto.question.QuestionAddRequest;
-import com.jaychou.interviewk.model.dto.question.QuestionEditRequest;
-import com.jaychou.interviewk.model.dto.question.QuestionQueryRequest;
-import com.jaychou.interviewk.model.dto.question.QuestionUpdateRequest;
+import com.jaychou.interviewk.model.dto.question.*;
 import com.jaychou.interviewk.model.entity.Question;
 import com.jaychou.interviewk.model.entity.QuestionBankQuestion;
 import com.jaychou.interviewk.model.entity.User;
@@ -273,6 +270,13 @@ public class QuestionController {
         ThrowUtils.throwIf(size > 200, ErrorCode.PARAMS_ERROR);
         Page<Question> questionPage = questionService.searchFromEs(questionQueryRequest);
         return ResultUtils.success(questionService.getQuestionVOPage(questionPage, request));
+    }
+    @PostMapping("/batch/delete")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    public BaseResponse<Boolean> batchDeleteQuestions(@RequestBody QuestionBatchDeleteRequest questionBatchDeleteRequest){
+        ThrowUtils.throwIf(questionBatchDeleteRequest == null,ErrorCode.PARAMS_ERROR);
+        questionService.batchDeleteQuestions(questionBatchDeleteRequest.getQuestionIdList());
+        return  ResultUtils.success(true);
     }
 
 

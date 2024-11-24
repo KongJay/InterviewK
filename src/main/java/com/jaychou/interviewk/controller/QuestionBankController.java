@@ -22,6 +22,7 @@ import com.jaychou.interviewk.model.vo.QuestionVO;
 import com.jaychou.interviewk.service.QuestionBankService;
 import com.jaychou.interviewk.service.QuestionService;
 import com.jaychou.interviewk.service.UserService;
+import com.jd.platform.hotkey.client.callback.JdHotKeyStore;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
@@ -146,6 +147,15 @@ public class QuestionBankController {
         ThrowUtils.throwIf(questionBankQueryRequest == null, ErrorCode.PARAMS_ERROR);
         Long id = questionBankQueryRequest.getId();
         ThrowUtils.throwIf(id <= 0, ErrorCode.PARAMS_ERROR);
+        //生成 key
+        String key ="bank_detail_" + id;
+        //如果是热key
+        if(JdHotKeyStore.isHotKey(key)){
+            Object cachedQuestionBankVo = JdHotKeyStore.get(key);
+            if(cachedQuestionBankVo != null){
+                return ResultUtils.success((QuestionBankVO) cachedQuestionBankVo);
+            }
+        }
         QuestionBank QuestionBank = QuestionBankService.getById(id);
         ThrowUtils.throwIf(QuestionBank == null, ErrorCode.NOT_FOUND_ERROR);
         QuestionBankVO questionBankVO = QuestionBankService.getQuestionBankVO(QuestionBank, request);
@@ -160,6 +170,8 @@ public class QuestionBankController {
             Page<QuestionVO> questionVOPage = questionService.getQuestionVOPage(questionPage, request);
             questionBankVO.setQuestionPage(questionVOPage);
         }
+        //设置本地缓存
+        JdHotKeyStore.smartSet(key,questionBankVO);
         // 获取封装类
         return ResultUtils.success(questionBankVO);
     }

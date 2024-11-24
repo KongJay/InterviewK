@@ -9,6 +9,7 @@ import com.jaychou.interviewk.model.entity.Question;
 import com.jaychou.interviewk.model.vo.QuestionVO;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
  * ClassName: QuestionService
@@ -68,5 +69,11 @@ public interface QuestionService extends IService<Question> {
      * @return
      */
     Page<Question> searchFromEs(QuestionQueryRequest questionQueryRequest);
+
+    /**
+     * 批量删除题目
+     * @param questionIdList
+     */
+    void batchDeleteQuestions(List<Long> questionIdList);
 
 }

@@ -23,6 +23,7 @@ import com.jaychou.interviewk.service.UserService;
 import com.jaychou.interviewk.utils.SqlUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.ss.formula.functions.T;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.sort.SortBuilder;
@@ -37,6 +38,7 @@ import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -325,6 +327,24 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
         }
         page.setRecords(resourceList);
         return page;
+    }
+    /**
+     * 批量删除题目
+     * @param questionIdList
+     */
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public void batchDeleteQuestions(List<Long> questionIdList) {
+        ThrowUtils.throwIf(CollUtil.isEmpty(questionIdList),ErrorCode.PARAMS_ERROR,"要删除的题目列表不能为空");
+        for(Long id : questionIdList){
+            boolean result = this.removeById(id);
+            ThrowUtils.throwIf(!result,ErrorCode.OPERATION_ERROR,"批量删除题目失败");
+            LambdaQueryWrapper<QuestionBankQuestion> lambdaQueryWrapper = Wrappers.lambdaQuery(QuestionBankQuestion.class)
+                    .eq(QuestionBankQuestion::getQuestionId, id);
+            boolean remove = questionBankQuestionService.remove(lambdaQueryWrapper);
+            ThrowUtils.throwIf(!remove,ErrorCode.OPERATION_ERROR,"从题库中移除题目失败");
+        }
+
     }
 
 }
