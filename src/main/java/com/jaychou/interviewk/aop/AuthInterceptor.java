@@ -24,8 +24,8 @@ import javax.servlet.http.HttpServletRequest;
  * @author <a href="https://github.com/KongJay">红模仿</a>
  * @from <a href="https://hongmofang.top">KongのBlog</a>
  */
-@Aspect
-@Component
+/*@Aspect
+@Component*/
 public class AuthInterceptor {
 
     @Resource

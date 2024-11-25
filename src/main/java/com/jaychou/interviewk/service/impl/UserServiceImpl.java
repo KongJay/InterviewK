@@ -1,5 +1,6 @@
 package com.jaychou.interviewk.service.impl;
 
+import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.collection.CollUtil;
 import co.elastic.clients.elasticsearch.async_search.ElasticsearchAsyncSearchClient;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -14,6 +15,8 @@ import com.jaychou.interviewk.model.entity.User;
 import com.jaychou.interviewk.model.enums.UserRoleEnum;
 import com.jaychou.interviewk.model.vo.LoginUserVO;
 import com.jaychou.interviewk.model.vo.UserVO;
+import com.jaychou.interviewk.satoken.DeviceUtils;
+import com.jaychou.interviewk.satoken.StpInterfaceImpl;
 import com.jaychou.interviewk.service.UserService;
 import com.jaychou.interviewk.utils.SqlUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -122,7 +125,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户不存在或密码错误");
         }
         // 3. 记录用户的登录态
-        request.getSession().setAttribute(USER_LOGIN_STATE, user);
+        //request.getSession().setAttribute(USER_LOGIN_STATE, user);
+        //Sa-token登录,并指定设备
+        StpUtil.login(user.getId(), DeviceUtils.getRequestDevice(request));
+        StpUtil.getSession().set(USER_LOGIN_STATE,user);
         return this.getLoginUserVO(user);
     }
 
@@ -166,15 +172,19 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      */
     @Override
     public User getLoginUser(HttpServletRequest request) {
-        // 先判断是否已登录
+        Object loginIdDefaultNull = StpUtil.getLoginIdDefaultNull();
+        if(loginIdDefaultNull == null){
+            throw  new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
+        }
+/*        // 先判断是否已登录
         Object userObj = request.getSession().getAttribute(USER_LOGIN_STATE);
         User currentUser = (User) userObj;
         if (currentUser == null || currentUser.getId() == null) {
             throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
         }
         // 从数据库查询（追求性能的话可以注释，直接走缓存）
-        long userId = currentUser.getId();
-        currentUser = this.getById(userId);
+        long userId = currentUser.getId();*/
+        User currentUser = this.getById((String)loginIdDefaultNull);
         if (currentUser == null) {
             throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
         }
@@ -226,11 +236,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      */
     @Override
     public boolean userLogout(HttpServletRequest request) {
-        if (request.getSession().getAttribute(USER_LOGIN_STATE) == null) {
+        StpUtil.checkLogin();
+        //移除登录态
+        StpUtil.logout();
+/*        if (request.getSession().getAttribute(USER_LOGIN_STATE) == null) {
             throw new BusinessException(ErrorCode.OPERATION_ERROR, "未登录");
         }
         // 移除登录态
-        request.getSession().removeAttribute(USER_LOGIN_STATE);
+        request.getSession().removeAttribute(USER_LOGIN_STATE);*/
         return true;
     }
 
